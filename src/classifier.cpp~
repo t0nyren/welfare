@@ -132,14 +132,10 @@ int Classifier::classify(Mat img){
 	return prediction;
 }
 
-float* Classifier::encodeImg(Mat img){
+float* Classifer::encodeImg(Mat img){
 	pair<vector<float>, vector<float> > features = featureExtraction(img);
 	float* code = encode(features.first, features.second);
 	return code;
-}
-
-int Classifier::getCodeDimension(){
-	return vladDimension;
 }
 
 pair<vector<float>, vector<float> > Classifier::featureExtraction(const Mat& img){

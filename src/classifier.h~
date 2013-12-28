@@ -10,7 +10,6 @@ class Classifier{
 		int classify(Mat img);
 		float* encodeImg(Mat img);
 		void setDebug(bool isdebug);
-		int getCodeDimension();
 	private:
 		//param
 		int descrDimension;
