@@ -1,9 +1,10 @@
 all: bin/classify bin/align_single
 
-CV_INCLUDE = -I"/home/zhouping/tonyren/cv/include"
-VL_INCLUDE = -I"/home/zhouping/tonyren/vlfeat"
-VL_LINK = -L"./lib" -lvl
-CV_LINK = -L"/home/zhouping/tonyren/cv/lib"  -lopencv_core -lopencv_highgui  -lopencv_objdetect -lopencv_contrib -lopencv_legacy
+CV_INCLUDE = -I"include/cv"
+VL_INCLUDE = -I"include/"
+VL_LINK = -L"./lib/vl/" -lvl
+CV_LINK = -L"./lib/cv/"  -lopencv_core -lopencv_highgui  -lopencv_objdetect 
+#-lopencv_contrib -lopencv_legacy
 
 bin/classify: build/main.o build/classifier.o build/detector.o build/mblbp-detect.o build/flandmark_detector.o build/liblbp.o
 	g++ -o bin/classify build/main.o build/classifier.o build/detector.o build/mblbp-detect.o build/flandmark_detector.o build/liblbp.o $(VL_LINK) $(CV_LINK)
