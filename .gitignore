@@ -1,2 +1,5 @@
+*.csv
+*.dat
+bin/
+build/
 data/
-model/w.dat

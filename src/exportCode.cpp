@@ -58,19 +58,9 @@ int main( int argc, char** argv )
 			char * name = entry->d_name;
 			stat(name, &buf);
 			std::cout << name<<std::endl;
-			std::string s1 = argv[2];
 			std::string s2 = name;
 			fout<<id<<','<<name<<',';
 			int goodCount = 0;
-			char buf[10];
-			sprintf(buf, "%d", id);
-			std::string dir_path = s1 + '/' + buf;
-			std::cout<<dir_path<<std::endl;
-			string failpath = string("fail/") + buf;
-			string fppath = string("fp/") + buf;
-			mkdir(dir_path.data(), S_IRWXU);
-			mkdir(failpath.data(), S_IRWXU);
-			mkdir(fppath.data(), S_IRWXU);
 			
 			DIR* pDIR2;
 			std::string s3 = argv[1];
@@ -85,6 +75,7 @@ int main( int argc, char** argv )
 					std::string img_origin_path = origin_path + '/' + entry2->d_name;
 					Mat img = detector.detect(img_origin_path.data());
 					if (img.empty()){
+						entry2 = readdir(pDIR2);
 						continue;
 					}
 					goodCount++;
@@ -96,6 +87,8 @@ int main( int argc, char** argv )
 						dbout<<code[i]<<" ";
 					}
 					dbout<<endl;
+					delete [] code;
+					code = NULL;
 				}
 				entry2 = readdir(pDIR2);
 			}
