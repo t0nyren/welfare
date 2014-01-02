@@ -1,5 +1,5 @@
 *.csv
 *.dat
-bin/
-build/
-data/
+bin/*
+build/*
+data/*
