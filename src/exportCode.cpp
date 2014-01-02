@@ -73,16 +73,23 @@ int main( int argc, char** argv )
 				{
 					//std::cout<<"\t"<<entry2->d_name<<std::endl;
 					std::string img_origin_path = origin_path + '/' + entry2->d_name;
-					Mat img = detector.detect(img_origin_path.data());
-					if (img.empty()){
+					Mat src = detector.detect(img_origin_path.data());
+					Mat img;
+					if (src.empty()){
 						entry2 = readdir(pDIR2);
 						continue;
 					}
 					goodCount++;
+					if (src.channels() != 3 && src.channels() != 4){
+						cout<<"channel error"<<endl;
+						entry2 = readdir(pDIR2);
+						continue;
+					}
+					cvtColor(src, img, CV_RGB2GRAY);
 					float* code = classifier.encodeImg(img);
 					dbout<<entry->d_name<<endl;
 					dbout<<entry2->d_name<<endl;
-					dbout<<id;
+					dbout<<id<<" ";
 					for (int i = 0; i < classifier.getCodeDimension(); i++){
 						dbout<<code[i]<<" ";
 					}

@@ -16,7 +16,14 @@ class VIMG{
 		float* code;
 };
 
-float l2(float* code1, float* code2, int dim);
+double l2(float* code1, float* code2, int dim);
+double scalar(float* code1, float* code2, int dim){
+	double ret = 0;
+	for (int i = 0; i < dim; i++){
+		ret += code1[i]*code2[i];
+	}
+	return ret;
+}
 
 int main(int argc, char** argv){
 	if (argc != 2){
@@ -32,35 +39,45 @@ int main(int argc, char** argv){
 		cout<<"fail to open img database"<<endl;
 	}
 	
-	string filename;
-	string classname;
+	char filename[1024];
+	char classname[1024];
 		
 	int id;
 	//TODO: hard code vlad dimension
-	int vladDimension = 22272;
-	
+	const int vladDimension = 22272;
+	//int vladDimension = 4;
 		
-	fin>>classname;
-	string preClassname = classname;
-	int classcount = 1;	
+	fin.getline(classname,1024);
+	int preid = -1;
+	int classcount = 0;	
 	while(!fin.eof()){
-		if (classname != preClassname){
-			cout<<classname<<endl;
-			classcount ++;
-		}
-		fin>>filename;
+		fin.getline(filename,1024);
 		fin>>id;
+		//cout<<filename<<" "<<id<<endl;
+		if (id != preid){
+			cout<<classname<<endl;
+			classcount++;
+			preid = id;	
+		}
 		float* code = new float[vladDimension];
 		for (int i = 0; i < vladDimension; i++){
 			fin>>code[i];
+		//	cout<<code[i]<<" ";
 		}
+		//cout<<endl;
+		char tmp;
+		fin.get(tmp);
+		fin.get(tmp);
 		VIMG img;
 		img.id = id;
 		img.filename = filename;
 		img.code = code;
 		img.classname = classname;
 		model.push_back(img);
-		fin>>classname;
+		//classname = "";
+		//filename = "";
+		fin.getline(classname,1024);
+		//cout<<classname<<endl;
 
 	}
 	cout<<"num class:"<<classcount<<" num img:"<<model.size()<<endl;
@@ -71,23 +88,32 @@ int main(int argc, char** argv){
 	Mat img;
 	cvtColor(src, img, CV_RGB2GRAY);
 	float* code = classifier.encodeImg(img);
-	classname = "";
-	filename = "";
-	double mindis = 10000;
+	ofstream fout;
+	fout.open("code.txt");
+	for (int i = 0; i < vladDimension; i++){
+		fout<<code[i]<<" ";
+	}
+	cout<<endl;
+	fout.close();
+	string pclassname = "";
+	string pfilename = "";
+	double maxsim = -10000;
 	for (int i = 0; i < model.size(); i++){
-		double dis = l2(model[i].code, code, vladDimension);
-		if (dis < mindis){
-			classname = model[i].classname;
-			filename = model[i].filename;
+		double sim = scalar(model[i].code, code, vladDimension);
+		cout<<model[i].classname<<" "<<sim<<endl;
+		if (sim > maxsim){
+			pclassname = model[i].classname.data();
+			pfilename = model[i].filename.data();
+			maxsim = sim;
 		}
 	}
-	cout<<"Prediction: "<<classname<<endl;
-	cout<<"File: "<<filename<<endl;
+	cout<<"Prediction: "<<pclassname<<endl;
+	cout<<"File: "<<pfilename<<endl;
 	return 0;
 }
 
-float l2(float* code1, float* code2, int dim){
-	float ret = 0;	
+double l2(float* code1, float* code2, int dim){
+	double ret = 0;	
 	for (int i = 0; i < dim; i++){
 		ret += pow((code1[i] - code2[i]),2);
 	}
