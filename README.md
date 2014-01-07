@@ -1,7 +1,7 @@
 WELFARE
 =======
 
-WELFARE stands for "Web-level Facial Recognition", which provides a complete list of tools for facial recogntion tasks, including face detection, alignment, encoding, and classification. WELFARE targets for the unconstrained face recognition in natural environments, where faces are collected from the Internet.
+WELFARE stands for "Web-level Facial Recognition", which provides a complete list of tools for facial recognition tasks, including face detection, alignment, encoding, and classification. WELFARE targets for the unconstrained face recognition in natural environments, where faces are collected from the Internet.
 
 Keywords: Cascade Classifier, Landmark Detection, Alignment, Dense SIFT, PCA, Bag-of-Visual-Words(BOVW), Vector of Locally Aggregated Descriptors(VLAD), SVM, randomized KD-Tree.
 
