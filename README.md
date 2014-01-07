@@ -5,7 +5,7 @@ WELFARE stands for "Web-level Facial Recognition", which provides a complete lis
 
 Keywords: Cascade Classifier, Landmark Detection, Alignment, Dense SIFT, PCA, Bag-of-Visual-Words(BOVW), Vector of Locally Aggregated Descriptors(VLAD), SVM, randomized KD-Tree.
 
-Documentation: https://github.com/t0nyren/spatedb/wiki
+Documentation: https://github.com/t0nyren/welfare/wiki
 
 Building
 =====
