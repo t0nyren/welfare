@@ -69,23 +69,34 @@ VladIndex::VladIndex(){
 }
 
 
-int VladIndex::predict(const char* path){
+string VladIndex::predict(const char* path, bool isDetect){
 	int nn = 3;
 	struct timeval begin, end;
 	gettimeofday(&begin, NULL);
-	Mat src = detector->detect(path);
+	Mat src;
+	if (isDetect){
+		src = detector->detect(path);
+	}
+	else{
+		Mat src1 = imread(path, CV_LOAD_IMAGE_COLOR);
+		resize(src1, src, Size(100, 100));
+	}
+	
 	Mat img;
 	if (src.empty()){
 		cout<<"fail to detect"<<endl;
-		return -1;
+		return "";
 	}
 	else if (src.channels()==3 || src.channels()==4){
 		cvtColor(src, img, CV_RGB2GRAY);
 	}
 	else if (img.channels() != 1){
 		cout<<"cvtcolor failed"<<endl;
-		return -1;
+		return "";
 	}
+	else
+		img = src;
+	
 	float* code = classifier->encodeImg(img);
 	//ofstream fout;
 	//fout.open("code.txt");
@@ -112,13 +123,13 @@ int VladIndex::predict(const char* path){
 	gettimeofday(&end, NULL);
 	elapsed = (end.tv_sec - begin.tv_sec) + 
 			  ((end.tv_usec - begin.tv_usec)/1000000.0);
-	cout<<"query: "<<elapsed<<" seconds"<<endl;	
+	//cout<<"query: "<<elapsed<<" seconds"<<endl;	
 	for (int i = 0; i < nn; i++){
 		cout<<"Prediction: "<<imgs[indices[0][i]].classname<<endl;
 		cout<<"File: "<<imgs[indices[0][i]].filename<<endl;
 		cout<<"Distance: "<<dists[0][i]<<endl;
 	}
-	int ret = imgs[indices[0][0]].id;
+	string ret = imgs[indices[0][1]].classname;
 	delete[] code;
 	delete[] indices_array;
 	delete[] dists_array;

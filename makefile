@@ -32,22 +32,22 @@ build/classifier.o: src/classifier.cpp
 	g++ -c ./src/classifier.cpp -o ./build/classifier.o $(VL_INCLUDE) $(CV_INCLUDE)
 
 build/align_single.o: src/align_single.cpp 
-	g++ -c src/align_single.cpp -o build/align_single.o  $(CV_INCLUDE)
+	g++ -c -O3 src/align_single.cpp -o build/align_single.o  $(CV_INCLUDE)
 
 build/vladIndex.o: src/vladIndex.cpp src/vladIndex.h
 	g++ -c src/vladIndex.cpp -o build/vladIndex.o $(CV_INCLUDE) $(VL_INCLUDE)
 
 build/detector.o: src/detector.cpp
-	g++ -c src/detector.cpp -o build/detector.o $(CV_INCLUDE)
+	g++ -c -O3 src/detector.cpp -o build/detector.o $(CV_INCLUDE)
 
 build/flandmark_detector.o: src/flandmark_detector.cpp
-	g++ -c src/flandmark_detector.cpp -o build/flandmark_detector.o $(CV_INCLUDE)
+	g++ -c -O3 src/flandmark_detector.cpp -o build/flandmark_detector.o $(CV_INCLUDE)
 
 build/liblbp.o: ./src/liblbp.cpp
 		g++ -c src/liblbp.cpp -o build/liblbp.o $(CV_INCLUDE)
 	
 build/mblbp-detect.o: src/mblbp-detect.h src/mblbp-detect.cpp 
-	g++ -c src/mblbp-detect.cpp -o build/mblbp-detect.o $(CV_INCLUDE)
+	g++ -c -O3 src/mblbp-detect.cpp -o build/mblbp-detect.o $(CV_INCLUDE)
 clean:
 	rm ./build/*.o
 	rm ./bin/classify

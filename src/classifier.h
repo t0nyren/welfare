@@ -7,10 +7,11 @@ using namespace std;
 class Classifier{
 	public:
 		Classifier();
-		int classify(Mat img);
+		int classify(Mat img, int num, int* ids, int* similarities);
 		float* encodeImg(Mat img);
 		void setDebug(bool isdebug);
 		int getCodeDimension();
+
 	private:
 		//param
 		int descrDimension;
@@ -40,5 +41,5 @@ class Classifier{
 		void renorm(vector<float>& descrps);
 		vector<float> project(vector<float>& descrs);
 		float* encode(vector<float> descrs, vector<float> frames);
-		int search(float* code);
+		int search(float* code, int num, int* ids, int* similarities);
 };

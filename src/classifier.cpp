@@ -9,6 +9,13 @@
 #include <sys/time.h>
 #include <opencv2/imgproc/imgproc.hpp>
 
+#define MAX_NUM_RETURNS 5
+#define MODEL_W "model/w.dat"
+#define MODEL_B "model/b.dat"
+#define MODEL_WORDS "model/encoder_words.dat"
+#define MODEL_CENTER "model/encoder_projectionCenter.dat"
+#define MODEL_PROJECT "model/encoder_projection.dat"
+
 //default constructor, load default param
 Classifier::Classifier(){
 	debug = 0;
@@ -18,13 +25,13 @@ Classifier::Classifier(){
 	numWords = 256;
 	maxNumFrames = 10000;
 	frameDimension = 2;
-	numClass = 724;
+	numClass = 726;
 	geoDimension = pcaDimension + frameDimension;
 	vladDimension = numWords * geoDimension;
 
 	//model
 	ifstream fin;
-	fin.open("model/w.dat");
+	fin.open(MODEL_W);
 	if (fin.fail()){
 		cout<<"fail to open w.dat"<<endl;
 		exit(1);
@@ -38,7 +45,7 @@ Classifier::Classifier(){
 	}
 	fin.close();
 	
-	fin.open("model/b.dat");
+	fin.open(MODEL_B);
 		if (fin.fail()){
 		cout<<"fail to open b.dat"<<endl;
 		exit(1);
@@ -49,7 +56,7 @@ Classifier::Classifier(){
 	}
 	fin.close();
 	
-	fin.open("model/encoder_words.dat");
+	fin.open(MODEL_WORDS);
 	if (fin.fail()){
 		cout<<"fail to open encoder_words.dat"<<endl;
 		exit(1);
@@ -62,7 +69,7 @@ Classifier::Classifier(){
 	}
 	fin.close();
 	
-	fin.open("model/encoder_projectionCenter.dat");
+	fin.open(MODEL_CENTER);
 	if (fin.fail()){
 		cout<<"fail to open encoder_projectionCenter.dat"<<endl;
 		exit(1);
@@ -73,7 +80,7 @@ Classifier::Classifier(){
 	}
 	fin.close();
 	
-	fin.open("model/encoder_projection.dat");
+	fin.open(MODEL_PROJECT);
 	if (fin.fail()){
 		cout<<"fail to open encoder_projection.dat"<<endl;
 		exit(1);
@@ -108,26 +115,26 @@ void Classifier::buildKDForest(){
     //}
 }
 
-int Classifier::classify(Mat img){
+int Classifier::classify(Mat img, int num, int* ids, int* similarities){
 	struct timeval begin, end;
 	gettimeofday(&begin, NULL);
 	pair<vector<float>, vector<float> > features = featureExtraction(img);
 	gettimeofday(&end, NULL);
 	double elapsed = (end.tv_sec - begin.tv_sec) + 
               ((end.tv_usec - begin.tv_usec)/1000000.0);
-	cout<<"Feature extraction: "<<elapsed<<" seconds"<<endl;
+	//cout<<"Feature extraction: "<<elapsed<<" seconds"<<endl;
 	gettimeofday(&begin, NULL);
 	float* code = encode(features.first, features.second);
 	gettimeofday(&end, NULL);
 	elapsed = (end.tv_sec - begin.tv_sec) + 
               ((end.tv_usec - begin.tv_usec)/1000000.0);
-	cout<<"Encoding: "<<elapsed<<" seconds"<<endl;
+	//cout<<"Encoding: "<<elapsed<<" seconds"<<endl;
 	gettimeofday(&begin, NULL);
-	int prediction = search(code);
+	int prediction = search(code, num, ids, similarities);
 		gettimeofday(&end, NULL);
 	elapsed = (end.tv_sec - begin.tv_sec) + 
               ((end.tv_usec - begin.tv_usec)/1000000.0);
-	cout<<"Searching: "<<elapsed<<" seconds"<<endl;
+	//cout<<"Searching: "<<elapsed<<" seconds"<<endl;
 	delete[] code;
 	return prediction;
 }
@@ -166,6 +173,7 @@ pair<vector<float>, vector<float> > Classifier::featureExtraction(const Mat& img
 	  Mat resized;
 	  //hard code img size
 	  //TODO: fix later
+	  cout<<"feature extraction img size: "<<img.rows<<" "<<img.cols<<endl;
 	  resize(img,resized,Size(100*scales[scale],100*scales[scale]),0,0,INTER_NEAREST);
 	  char buf[10];
 	  sprintf(buf,"%d", scale+1);
@@ -270,7 +278,7 @@ float* Classifier::encode(vector<float> descrs, vector<float> frames){
 	gettimeofday(&end, NULL);
 	double elapsed = (end.tv_sec - begin.tv_sec) + 
               ((end.tv_usec - begin.tv_usec)/1000000.0);
-	cout<<"PCA projection: "<<elapsed<<" seconds"<<endl;
+	//cout<<"PCA projection: "<<elapsed<<" seconds"<<endl;
 	//cout<<"renorming"<<endl;
 	renorm(descrps);
 
@@ -290,7 +298,7 @@ float* Classifier::encode(vector<float> descrs, vector<float> frames){
 	gettimeofday(&end, NULL);
 	elapsed = (end.tv_sec - begin.tv_sec) + 
               ((end.tv_usec - begin.tv_usec)/1000000.0);
-	cout<<"Expanding: "<<elapsed<<" seconds"<<endl;
+	//cout<<"Expanding: "<<elapsed<<" seconds"<<endl;
 	
 	//cout<<"query kd-tree"<<endl;
 	gettimeofday(&begin, NULL);
@@ -338,7 +346,7 @@ float* Classifier::encode(vector<float> descrs, vector<float> frames){
 	gettimeofday(&end, NULL);
 	elapsed = (end.tv_sec - begin.tv_sec) + 
               ((end.tv_usec - begin.tv_usec)/1000000.0);
-	cout<<"bovw: "<<elapsed<<" seconds"<<endl;
+	//cout<<"bovw: "<<elapsed<<" seconds"<<endl;
 
 
 	//for (int i = 0; i < descrps.size(); i++){
@@ -361,7 +369,7 @@ float* Classifier::encode(vector<float> descrs, vector<float> frames){
 	gettimeofday(&end, NULL);
 	elapsed = (end.tv_sec - begin.tv_sec) + 
               ((end.tv_usec - begin.tv_usec)/1000000.0);
-	cout<<"vlad: "<<elapsed<<" seconds"<<endl;
+	//cout<<"vlad: "<<elapsed<<" seconds"<<endl;
 	
 	delete[] distance;
 	delete[] assignments;
@@ -370,56 +378,120 @@ float* Classifier::encode(vector<float> descrs, vector<float> frames){
 	return vlad;
 }
 
-int Classifier::search(float* code){
+int Classifier::search(float* code, int num, int* ids, int* similarities){
 	//cout<<"category scores:"<<endl;
 	vector<float> scores;
+	if (num > MAX_NUM_RETURNS)
+		num = MAX_NUM_RETURNS;
+	/*
 	float max = -1000;
 	float max2 = -1000;
 	float max3 = -1000;
 	int max_index = -1;
 	int max_index2 = -1;
-	int max_index3 = -1;
-	
+	int max_index3 = -1;*/
+	float max[MAX_NUM_RETURNS];
+	for (int i = 0; i < num; i++){
+		max[i] = -1000;
+		ids[i] = -1;
+	}
 	for (int i = 0; i < numClass; i++){
 		float score = 0;
 		for (int j = 0; j < vladDimension; j++){
 			score += code[j]*w[i][j];
 		}
 		score += b[i];
-		if (score > max){
+		scores.push_back(score);
+		/*
+		if (scores[i] > max){
 			max2 = max;
 			max_index2 = max_index;
 			
-			max = score;
+			max = scores[i];
 			max_index = i;
 		}
-		else if (score > max2){
+		else if (scores[i] > max2){
 			max3 = max2;
 			max_index3 = max_index2;
 		
-			max2 = score;
+			max2 = scores[i];
 			max_index2 = i;
 		}
-		else if (score > max3){
-			max3 = score;
+		else if (scores[i] > max3){
+			max3 = scores[i];
 			max_index3 = i;
-		}
+		}*/
 		//cout<<i<<" "<<score<<endl;
-		scores.push_back(score);
+		
+	}
+	for (int i = 0; i < num; i++){
+		for (int j = 0; j < numClass; j++){
+			if (scores[j] > max[i]){
+				bool add = 1;
+				for (int k = 0; k < i; k++){
+					if (ids[k] == j){
+						add = 0;
+					}
+				}
+				if (add){
+					max[i] = scores[j];
+					ids[i] = j;
+				}
+			}
+		}
 	}
 	
 	if (debug){
-		cout<<"First: "<<max_index<<" "<<max<<endl;
-		cout<<"Second: "<<max_index2<<" "<<max2<<endl;
-		cout<<"Third: "<<max_index3<<" "<<max3<<endl;
+		for (int i = 0; i < num; i++){
+			cout<<i<<"th: "<<ids[i]<<" "<<max[i]<<endl;
+		}
 	}
+	int ret = num;
+	srand (time(NULL));
+	float maxSim = -0.65;
+	float minSim = -0.85;
+	if (max[0] > -0.5)
+		maxSim = max[0];
+	for (int i = 0; i < num; i++){
+		max[i] = 1 - (maxSim - max[i])/(maxSim - minSim);
+		if (max[i] >= 0.95)
+			similarities[i] = 95;
+		else if (max[i] <= 0.05)
+			similarities[i] = 5;
+		else
+			similarities[i] = max[i]*100;
 	
+		//no similar class, return one of the defaults
+		if (max[i] < -0.85){
+			if (ret ==num)
+				ret = i;
+			int ran =  rand() % 5;
+			switch(ran){
+			case 0:
+				ids[i] =  0;
+				break;
+			case 1:
+				ids[i] = 1;
+				break;
+			case 2:
+				ids[i] = 2;
+				break;
+			case 3:
+				ids[i] = 3;
+				break;
+			default:
+				ids[i] = 283;
+			}
+		}
+	}
+	/*
 	if (max > -0.85)
 		return max_index;
 	else
 		return 259;
 	//cout<<"classify: "<<max_index<<endl;
-	return max_index;
+	return max_index;*/
+	return ret;
 }
 
 void Classifier::norm(vector<float>& src, int descrSize, int numFrames){

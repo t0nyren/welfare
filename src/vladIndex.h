@@ -22,7 +22,7 @@ class VIMG{
 class VladIndex{
 	public:
 		VladIndex();
-		int predict(const char* path);
+		string predict(const char* path, bool isDetect);
 
 	private:
 		Classifier* classifier;

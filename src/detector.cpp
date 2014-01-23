@@ -48,7 +48,6 @@ Mat Detector::detect(string imgname){
     IplImage *frame_bw = cvCreateImage(cvSize(frame->width, frame->height), IPL_DEPTH_8U, 1);
     cvConvertImage(frame, frame_bw);
 	Mat frame_mat(frame, 1);
-	
 	// Smallest face size.
     CvSize minFeatureSize = cvSize(100, 100);
     int flags =  CV_HAAR_DO_CANNY_PRUNING;
@@ -57,15 +56,14 @@ Mat Detector::detect(string imgname){
     CvMemStorage* storage;
     CvSeq* rects;
     int nFaces;
-
+	
     storage = cvCreateMemStorage(0);
     cvClearMemStorage(storage);
 
     // Detect all the faces in the greyscale image.
    //rects = cvHaarDetectObjects(frame_bw, faceCascade, storage, search_scale_factor, 2, flags, minFeatureSize);
-    rects = MBLBPDetectMultiScale(frame_bw, faceCascade, storage, 1229, 3, 50, 500);
+    rects = MBLBPDetectMultiScale(frame_bw, faceCascade, storage, 1229, 1, 50, 500);
 	nFaces = rects->total;
-
 	if (nFaces != 1){
 		if (debug)
 			printf("%d faces detected\n", nFaces);
@@ -87,7 +85,6 @@ Mat Detector::detect(string imgname){
 	
 	// Detect landmarks
 	flandmark_detect(frame_bw, bbox, fmodel, landmarks);
-	
 	
 	//align faces
 	double angle[3];
