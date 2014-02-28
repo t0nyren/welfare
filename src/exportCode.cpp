@@ -32,7 +32,7 @@ int main( int argc, char** argv )
     
 	if (argc < 2)
 	{
-	fprintf(stderr, "Usage: facecrop <path_to_input_image_dir>\n");
+	fprintf(stderr, "Usage: exportCode  <path_to_input_image_dir> <isDetect>\n");
 	exit(1);
 	}
 
@@ -73,19 +73,28 @@ int main( int argc, char** argv )
 				{
 					//std::cout<<"\t"<<entry2->d_name<<std::endl;
 					std::string img_origin_path = origin_path + '/' + entry2->d_name;
-					Mat src = detector.detect(img_origin_path.data());
+					Mat src;
+					if (atoi(argv[2])==1)
+						src  = detector.detect(img_origin_path.data());
+					else
+						src = imread(img_origin_path.data());
 					Mat img;
 					if (src.empty()){
 						entry2 = readdir(pDIR2);
 						continue;
 					}
 					goodCount++;
-					if (src.channels() != 3 && src.channels() != 4){
-						cout<<"channel error"<<endl;
+					if (src.channels() == 3 || src.channels() == 4){
+						cvtColor(src, img, CV_RGB2GRAY);
+					}
+					else if (src.channels() == 1){
+						img = src;
+					}
+					else{
+						cout<<"channel error: "<<src.channels()<<endl;
 						entry2 = readdir(pDIR2);
 						continue;
 					}
-					cvtColor(src, img, CV_RGB2GRAY);
 					float* code = classifier.encodeImg(img);
 					dbout<<entry->d_name<<endl;
 					dbout<<entry2->d_name<<endl;

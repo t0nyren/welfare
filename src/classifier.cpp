@@ -20,12 +20,15 @@
 Classifier::Classifier(){
 	debug = 0;
 	descrDimension = 128;
-	totalNumFrames = 1936;
-	pcaDimension = 85;
+	//totalNumFrames = 1936;
+	totalNumFrames = 3400;
+	//pcaDimension = 85;
+	pcaDimension = 80;
 	numWords = 256;
 	maxNumFrames = 10000;
 	frameDimension = 2;
-	numClass = 726;
+	//numClass = 726;
+	numClass = 20;
 	geoDimension = pcaDimension + frameDimension;
 	vladDimension = numWords * geoDimension;
 
@@ -152,22 +155,22 @@ int Classifier::getCodeDimension(){
 pair<vector<float>, vector<float> > Classifier::featureExtraction(const Mat& img){
 	//hard code scales
 	//TODO: fix later
-	//double scales[7];
-	//scales[0] = 2;
-	//scales[1] = 1.414213562373095;
-	//scales[2] = 1;
-	//scales[3] = 0.707106781186548;
-	//scales[4] = 0.5;
-	//scales[5] = 0.353553390593274;
-	//scales[6] = 0.25;
-	double scales[1];
+	double scales[7];
 	scales[0] = 2;
+	scales[1] = 1.414213562373095;
+	scales[2] = 1;
+	scales[3] = 0.707106781186548;
+	scales[4] = 0.5;
+	scales[5] = 0.353553390593274;
+	scales[6] = 0.25;
+	//double scales[1];
+	//scales[0] = 2;
 	
 	pair<vector<float>, vector<float> > descriptors;
 	float* tmpDescr = new float[descrDimension];
 
 
-	for ( int scale = 0; scale < 1 ; scale++){
+	for ( int scale = 0; scale < 7 ; scale++){
 	  vector<float> descrsOut;
 	  vector<float> framesOut;
 	  Mat resized;

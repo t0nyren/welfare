@@ -33,6 +33,7 @@ int main(int argc, char** argv){
 	int count = 0;
 	int correct = 0;
 	VladIndex index;
+	cout<<"Precision: "<<index.evalPrecision()<<endl;
 	while(entry != NULL)
 	{
 		if(0 != strcmp( ".", entry->d_name) && //Skip these dir

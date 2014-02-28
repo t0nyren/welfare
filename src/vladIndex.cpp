@@ -68,6 +68,35 @@ VladIndex::VladIndex(){
     cout<<"build index: "<<elapsed<<" seconds"<<endl;
 }
 
+double VladIndex::evalPrecision(){
+	float* code = new float[vladDimension];
+	int ind = 0;
+	int nn = 2;
+	double correct = 0;
+	for (int i = 0; i < imgs.size(); i++){
+		for (int j = 0; j < vladDimension; j++, ind++){
+			code[j] = codes[ind];
+		}
+		int* indices_array = new int[nn];
+		float* dists_array = new float[nn];
+		cvflann::Matrix<float> query(code, 1, vladDimension);
+		cvflann::Matrix<int> indices(indices_array, 1, nn);
+		cvflann::Matrix<float> dists(dists_array, 1, nn);
+		index->knnSearch(query, indices, dists, nn, cvflann::SearchParams(128));
+		//cout<<"query: "<<elapsed<<" seconds"<<endl;	
+		for (int i = 0; i < nn; i++){
+			cout<<"Prediction: "<<imgs[indices[0][i]].classname<<endl;
+			cout<<"File: "<<imgs[indices[0][i]].filename<<endl;
+			cout<<"Distance: "<<dists[0][i]<<endl;
+		}
+		
+		if (strcmp(imgs[indices[0][1]].classname.data(), imgs[i].classname.data())==0)
+			correct++;
+	}
+	delete [] code;
+	return correct/imgs.size();
+}
+
 
 string VladIndex::predict(const char* path, bool isDetect){
 	int nn = 3;

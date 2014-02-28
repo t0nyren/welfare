@@ -6,8 +6,8 @@
 #define PATH_FLANDMARK "./model/flandmark_model.dat"
 
 Detector::Detector(){
-	faceCascade = LoadMBLBPCascade(PATH_CASCADE);
-	//faceCascade = (CvHaarClassifierCascade*)cvLoad(model_haarcascade.data(), 0, 0, 0);
+	//faceCascade = LoadMBLBPCascade(PATH_CASCADE);
+	faceCascade = (CvHaarClassifierCascade*)cvLoad("./model/haarcascade_frontalface_alt.xml", 0, 0, 0);
 	debug = 0;
 	if(faceCascade == NULL)
     {
@@ -61,8 +61,8 @@ Mat Detector::detect(string imgname){
     cvClearMemStorage(storage);
 
     // Detect all the faces in the greyscale image.
-   //rects = cvHaarDetectObjects(frame_bw, faceCascade, storage, search_scale_factor, 2, flags, minFeatureSize);
-    rects = MBLBPDetectMultiScale(frame_bw, faceCascade, storage, 1229, 1, 50, 500);
+   rects = cvHaarDetectObjects(frame_bw, faceCascade, storage, search_scale_factor, 2, flags, minFeatureSize);
+    //rects = MBLBPDetectMultiScale(frame_bw, faceCascade, storage, 1229, 1, 50, 500);
 	nFaces = rects->total;
 	if (nFaces != 1){
 		if (debug)

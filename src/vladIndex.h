@@ -23,7 +23,7 @@ class VladIndex{
 	public:
 		VladIndex();
 		string predict(const char* path, bool isDetect);
-
+		double evalPrecision();
 	private:
 		Classifier* classifier;
 		Detector* detector;

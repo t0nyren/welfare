@@ -13,8 +13,8 @@ class Detector{
 		Mat detect(string imgname);
 		void setDebug(bool isdebug);
 	private:
-		//CvHaarClassifierCascade* faceCascade;
-		MBLBPCascade * faceCascade;
+		CvHaarClassifierCascade* faceCascade;
+		//MBLBPCascade * faceCascade;
 		FLANDMARK_Model* fmodel;
 		Mat rotateImage(const Mat& source, double angle);
 		bool debug;
