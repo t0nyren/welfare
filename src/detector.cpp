@@ -1,17 +1,14 @@
 #include "detector.h"
-#include "mblbp-detect.h"
 #define PI 3.14159265
 
-#define PATH_CASCADE "./model/szu.bin"
 #define PATH_FLANDMARK "./model/flandmark_model.dat"
 
 Detector::Detector(){
-	//faceCascade = LoadMBLBPCascade(PATH_CASCADE);
 	faceCascade = (CvHaarClassifierCascade*)cvLoad("./model/haarcascade_frontalface_alt.xml", 0, 0, 0);
 	debug = 0;
 	if(faceCascade == NULL)
     {
-        printf("Couldn't load Face detector '%s'\n", PATH_CASCADE);
+        printf("Couldn't load Face detector\n");
         exit(1);
     }
 	fmodel = flandmark_init(PATH_FLANDMARK);

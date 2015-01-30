@@ -6,15 +6,15 @@ VL_LINK = -L"lib/vl" -lvl
 CV_LINK = -L"lib/cv"  -lopencv_core -lopencv_highgui  -lopencv_objdetect -lopencv_imgproc -lopencv_legacy -lopencv_flann 
 #-lopencv_contrib -lopencv_legacy
 
-bin/classify: build/main.o build/classifier.o build/detector.o build/mblbp-detect.o build/flandmark_detector.o build/liblbp.o
+bin/classify: build/main.o build/classifier.o build/detector.o build/flandmark_detector.o build/liblbp.o
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:lib/vl:lib/cv
-	g++ -o bin/classify build/main.o build/classifier.o build/detector.o build/mblbp-detect.o build/flandmark_detector.o build/liblbp.o $(VL_LINK) $(CV_LINK)
+	g++ -o bin/classify build/main.o build/classifier.o build/detector.o  build/flandmark_detector.o build/liblbp.o $(VL_LINK) $(CV_LINK)
 
-bin/bfclassify: build/bfclassify.o build/vladIndex.o build/classifier.o build/detector.o build/mblbp-detect.o build/flandmark_detector.o build/liblbp.o
-	g++ -o bin/bfclassify build/bfclassify.o build/vladIndex.o build/classifier.o build/detector.o build/mblbp-detect.o build/flandmark_detector.o build/liblbp.o $(VL_LINK) $(CV_LINK)
+bin/bfclassify: build/bfclassify.o build/vladIndex.o build/classifier.o build/detector.o build/flandmark_detector.o build/liblbp.o
+	g++ -o bin/bfclassify build/bfclassify.o build/vladIndex.o build/classifier.o build/detector.o build/flandmark_detector.o build/liblbp.o $(VL_LINK) $(CV_LINK)
 
-bin/exportCode: build/exportCode.o build/classifier.o build/detector.o build/mblbp-detect.o build/flandmark_detector.o build/liblbp.o
-	g++ -o bin/exportCode build/exportCode.o build/classifier.o build/detector.o build/mblbp-detect.o build/flandmark_detector.o build/liblbp.o $(VL_LINK) $(CV_LINK)
+bin/exportCode: build/exportCode.o build/classifier.o build/detector.o build/flandmark_detector.o build/liblbp.o
+	g++ -o bin/exportCode build/exportCode.o build/classifier.o build/detector.o build/flandmark_detector.o build/liblbp.o $(VL_LINK) $(CV_LINK)
 
 bin/align_single: build/align_single.o build/flandmark_detector.o build/liblbp.o
 	g++ -o ./bin/align_single ./build/align_single.o ./build/flandmark_detector.o ./build/liblbp.o $(CV_LINK)
@@ -46,8 +46,6 @@ build/flandmark_detector.o: src/flandmark_detector.cpp
 build/liblbp.o: ./src/liblbp.cpp
 		g++ -c src/liblbp.cpp -o build/liblbp.o $(CV_INCLUDE)
 	
-build/mblbp-detect.o: src/mblbp-detect.h src/mblbp-detect.cpp 
-	g++ -c -O3 src/mblbp-detect.cpp -o build/mblbp-detect.o $(CV_INCLUDE)
 clean:
 	rm ./build/*.o
 	rm ./bin/classify
