@@ -21,4 +21,4 @@ Build WELFARE by simply typing "make"
     
 Contact
 =====
-Tony REN tonyren@ust.hk
+Tony REN ren.dongni@gmail.com
